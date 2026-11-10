@@ -25,5 +25,21 @@
 <body>
   <!-- FAX注文（GASアプリ）の画面をこの中に表示 -->
   <iframe id="app" src="https://script.google.com/macros/s/AKfycbweBFqQ_3hq_fmIR12lAtrToWwCSDW2U5SU87Ng6k-H3Xjf1cQrMA93jEJDOObam79j4A/exec?page=fax"></iframe>
+  <script>
+    // iPhoneのホーム画面アプリでは中の画面の記憶が消えるので、合言葉と送る人をこのページで覚えておく（2026-11-11）
+    window.addEventListener('message', function (e) {
+      var host = '';
+      try { host = new URL(e.origin).hostname; } catch (x) { return; }
+      if (!/\.googleusercontent\.com$/.test(host)) return;
+      var d = e.data || {};
+      try {
+        if (d.mf === 'get') {
+          e.source.postMessage({ mf: 'vals', faxPin: localStorage.getItem('faxPin') || '', faxWho: localStorage.getItem('faxWho') || '' }, e.origin);
+        } else if (d.mf === 'set' && (d.k === 'faxPin' || d.k === 'faxWho')) {
+          if (d.v) localStorage.setItem(d.k, d.v); else localStorage.removeItem(d.k);
+        }
+      } catch (x) {}
+    });
+  </script>
 </body>
 </html>
